@@ -1,6 +1,6 @@
-# 🍃 CitriScan: AI-Powered Agritech Diagnostic System
+# 🍃 Citrus Diagnosis: AI-Powered Agritech Diagnostic System
 
-CitriScan is a progressive web application designed to bring advanced machine learning diagnostics directly to the field. By combining a comparative dual-model computer vision architecture with a conversational AI assistant, it provides farmers and agronomists with an accessible, real-time tool for identifying and treating citrus plant diseases.
+Citrus Diagnosis is a progressive web application designed to bring advanced machine learning diagnostics directly to the field. By combining a comparative dual-model computer vision architecture with a conversational AI assistant, it provides farmers and agronomists with an accessible, real-time tool for identifying and treating citrus plant diseases.
 
 ### 🚀 Key Features
 
