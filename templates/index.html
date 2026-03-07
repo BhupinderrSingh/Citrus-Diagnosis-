@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Citrus Diagnosis | Revolutionary for Disease Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        
+        <div class="scanner-section">
+            <div class="section-header">
+                <h2>Leaf Analysis</h2>
+            </div>
+            
+            <div class="viewfinder-container">
+                <video id="camera-stream" autoplay playsinline style="display: none;"></video>
+                
+                <img id="image-preview" style="display: none;" alt="Leaf Preview">
+                
+                <div id="laser-scanner" class="laser-scanner hidden"></div>
+                
+                <div id="hud-badge" class="hud-badge hidden">
+                    <span id="status-text">Scanning...</span>
+                    <h1 id="disease-name"></h1>
+                    <div class="confidence-container">
+                        <span id="confidence-text">0%</span>
+                        <div class="confidence-bar">
+                            <div id="confidence-fill" class="fill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="viewfinder-placeholder" class="viewfinder-placeholder">
+                    <div class="icon">🍃</div>
+                    <p>Snap or Upload a Citrus Leaf</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="start-camera-btn" class="action-btn camera-btn">
+                    <span class="btn-icon">📷</span>
+                    <span class="btn-text">Use Camera</span>
+                </button>
+                
+                <button id="capture-btn" class="action-btn capture-btndanger" style="display: none;">
+                    <span class="btn-icon">🛑</span>
+                    <span class="btn-text">Snap Photo</span>
+                </button>
+                
+                <label for="file-upload" class="action-btn upload-btn">
+                    <span class="btn-icon">📁</span>
+                    <span class="btn-text">Upload Image</span>
+                </label>
+                <input type="file" id="file-upload" accept="image/*" style="display: none;">
+            </div>
+            
+            <canvas id="canvas" style="display: none;"></canvas>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-header">
+                <h3>CitriScan Assistant</h3>
+                <div class="status-dot online"></div>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot">
+                    Hello! I am the CitriScan Assistant. 
+                    Upload a photo or use your camera to analyze a citrus leaf for diseases.
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Ask about symptoms or treatments...">
+                <button id="send-chat-btn">Send</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
