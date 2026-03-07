@@ -47,13 +47,16 @@ API_KEY=your_gemini_api_key_here
 ```
 
 ### Step 4: Prepare the Dataset & Train the Models
-1. The Dataset: Ensure the raw images are located in a folder named Citrus_Leaves_Raw/Citrus Leaf Disease Image in the root directory.
 
-2. Train MobileNetV2: Run the standard training script. This will use splitfolders to automatically organize your dataset into Train/Val/Test splits and train the first network.
-
-```bash
-python train.py
-```
+1. **Download the Dataset:** Because the image dataset exceeds GitHub's size limits, you must download it manually.
+   * Go to Kaggle: `https://www.kaggle.com/datasets/myprojectdictionary/citrus-leaf-disease-image`
+   * Download and extract the `.zip` archive.
+   * Create a folder named `Citrus_Leaves_Raw` in the root of this project.
+   * Place the extracted `Citrus Leaf Disease Image` folder directly inside it.
+2. **Train MobileNetV2:** Run the standard training script. This will use `splitfolders` to automatically organize your dataset into Train/Val/Test splits and train the first network.
+   ```bash
+   python train.py
+   ```
 3. Train InceptionV3: Run the secondary training script to train the heavier architecture.
 
 ```bash
