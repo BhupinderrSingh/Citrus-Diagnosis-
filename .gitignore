@@ -1,0 +1,24 @@
+# Security / Secrets (CRITICAL)
+.env
+kaggle.json
+
+# Python Virtual Environments
+venv/
+env/
+.venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# User Uploads (from testing the Flask app)
+uploads/
+
+# Huge Datasets (Users can download these using your download_data.py)
+Citrus_Leaves_Raw/
+Citrus_Leaves_Split/
+
+# OS generated files
+.DS_Store
+# Ignore deep learning models to prevent GitHub 100MB limit errors
+*.h5

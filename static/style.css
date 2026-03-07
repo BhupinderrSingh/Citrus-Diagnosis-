@@ -1,0 +1,1081 @@
+<<<<<<< HEAD
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+:root {
+    --primary-green: #00ff88;
+    --danger-red: #ff3333;
+    --dark-bg: #0a0f0a;
+    --panel-bg: rgba(20, 25, 20, 0.85);
+    --chat-bot-bg: #1a251d;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-main: #ffffff;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+body {
+    background-image: url('download.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    /* To Prevent body scroll on mobile */
+}
+
+/* Add a cool blur to the background image behind the app */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    z-index: -1;
+}
+
+/* Main Application Container */
+.app-container {
+    display: flex;
+    flex-direction: row;
+    width: 95%;
+    max-width: 1300px;
+    height: 90vh;
+    background: var(--panel-bg);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+/* 1. Scanner Section (Left/Top) */
+.scanner-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    border-right: 1px solid var(--border-color);
+}
+
+.section-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.section-header h2 {
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    color: #aaa;
+}
+
+/* The black viewfinder box */
+.viewfinder-container {
+    flex: 1;
+    background: #000;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    border: 2px solid #222;
+}
+
+/* Video and Image fit the container */
+video,
+#image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+}
+
+.viewfinder-placeholder {
+    text-align: center;
+    color: #444;
+    z-index: 1;
+}
+
+.viewfinder-placeholder .icon {
+    font-size: 4rem;
+    margin-bottom: 10px;
+}
+
+/* -----------------------------------------
+        Laser Scanning Style
+   ----------------------------------------- */
+.laser-scanner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    /* slightly thicker line */
+    background: var(--primary-green);
+
+    /* Strong glow effects */
+    box-shadow: 0 0 20px var(--primary-green),
+        0 0 10px #ffffff,
+        0 0 40px var(--primary-green);
+
+    /* Ensure it sits above image but below HUD */
+    z-index: 5;
+    opacity: 0;
+
+    /* Define animation link */
+    animation: scanAnimation 3.0s ease-in-out infinite;
+
+    /* Smooth transitions for appearing/disappearing */
+    transition: opacity 0.6s ease-in-out;
+}
+
+/* Visible state */
+.laser-scanner:not(.hidden) {
+    opacity: 1;
+}
+
+/* Keyframes for the up-and-down motion */
+@keyframes scanAnimation {
+    0% {
+        top: 0%;
+        opacity: 0.3;
+    }
+
+    50% {
+        top: 100%;
+        opacity: 1;
+        /* Brightest in middle */
+        transform: translateY(-100%);
+        /* stay inside bottom edge */
+    }
+
+    100% {
+        top: 0%;
+        opacity: 0.3;
+    }
+}
+
+/* -----------------------------------------
+   Augmented Reality HUD Badge
+   ----------------------------------------- */
+.hud-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    padding: 30px 25px 20px 25px;
+    text-align: left;
+    z-index: 10;
+    transition: all 0.5s ease-out;
+    transform: translateY(0);
+}
+
+.hud-badge.hidden {
+    display: none;
+    transform: translateY(100%);
+}
+
+#status-text {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary-green);
+    font-weight: bold;
+}
+
+#disease-name {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 5px 0;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.confidence-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+#confidence-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary-green);
+    min-width: 50px;
+}
+
+.confidence-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fill {
+    height: 100%;
+    background: var(--primary-green);
+    width: 0%;
+    transition: width 1s ease-out, background 0.5s;
+    box-shadow: 0 0 10px var(--primary-green);
+}
+
+/* Danger state (Diseased) */
+.hud-badge.danger #disease-name {
+    color: var(--danger-red);
+    text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+}
+
+.hud-badge.danger #status-text {
+    color: var(--danger-red);
+}
+
+.hud-badge.danger #confidence-text {
+    color: var(--danger-red);
+}
+
+.hud-badge.danger .fill {
+    background: var(--danger-red);
+    box-shadow: 0 0 10px var(--danger-red);
+}
+
+
+/* -----------------------------------------
+   Controls Area
+   ----------------------------------------- */
+.controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    background: #1a251d;
+    color: var(--primary-green);
+    transition: all 0.3s;
+    border: 1px solid var(--primary-green);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-btn:hover {
+    background: var(--primary-green);
+    color: #000;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+
+.capture-btndanger {
+    background: #2a1010;
+    color: var(--danger-red);
+    border-color: var(--danger-red);
+}
+
+.capture-btndanger:hover {
+    background: var(--danger-red);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
+}
+
+/* Helper class for JS */
+.hidden {
+    display: none !important;
+}
+
+/* =========================================
+   2. Chat Section (Right/Bottom)
+   ========================================= */
+.chat-section {
+    width: 420px;
+    display: flex;
+    flex-direction: column;
+    background: rgba(10, 15, 10, 0.98);
+}
+
+.chat-header {
+    padding: 20px;
+    background: var(--chat-bot-bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #555;
+}
+
+.status-dot.online {
+    background: var(--primary-green);
+    box-shadow: 0 0 10px var(--primary-green);
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    scroll-behavior: smooth;
+}
+
+/* Scrollbar styling */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 3px;
+}
+
+/* Message Bubbles */
+.message {
+    max-width: 85%;
+    padding: 14px 18px;
+    border-radius: 18px;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.message.bot {
+    background: var(--chat-bot-bg);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.message.user {
+    background: var(--primary-green);
+    color: #000;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+    font-weight: 600;
+}
+
+/* Input Area */
+.chat-input-area {
+    padding: 20px;
+    display: flex;
+    gap: 12px;
+    background: var(--chat-bot-bg);
+    border-top: 1px solid var(--border-color);
+}
+
+#chat-input {
+    flex: 1;
+    padding: 14px;
+    border-radius: 25px;
+    border: 1px solid #333;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    outline: none;
+    font-size: 1rem;
+    transition: border 0.3s;
+}
+
+#chat-input:focus {
+    border-color: var(--primary-green);
+}
+
+#send-chat-btn {
+    padding: 0 25px;
+    border-radius: 25px;
+    border: none;
+    background: var(--primary-green);
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+#send-chat-btn:hover {
+    box-shadow: 0 0 10px var(--primary-green);
+    transform: scale(1.05);
+}
+
+/* =========================================
+   Mobile Responsiveness
+   ========================================= */
+@media (max-width: 900px) {
+    body {
+        align-items: flex-start;
+        overflow: auto;
+    }
+
+    .app-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        width: 100%;
+        border-radius: 0;
+        border: none;
+        margin: 0;
+    }
+
+    .scanner-section {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 15px;
+        /* Viewfinder takes decent height on mobile */
+        height: 60vh;
+    }
+
+    .viewfinder-container {
+        margin-bottom: 10px;
+    }
+
+    #disease-name {
+        font-size: 1.8rem;
+    }
+
+    .controls {
+        gap: 10px;
+    }
+
+    .action-btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        flex: 1;
+        /* buttons split width */
+        justify-content: center;
+    }
+
+    .btn-text {
+        display: none;
+    }
+
+    /* Show only icons on very small screens if needed, otherwise rely on flex */
+
+    .chat-section {
+        width: 100%;
+        height: 40vh;
+        /* Bottom section */
+        background: rgba(5, 5, 5, 0.99);
+    }
+
+    .chat-messages {
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .message {
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+
+    .chat-input-area {
+        padding: 10px;
+    }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 900px) and (orientation: landscape) {
+    .app-container {
+        flex-direction: row;
+        height: 100vh;
+    }
+
+    .scanner-section {
+        height: 100vh;
+        border-right: 1px solid var(--border-color);
+        border-bottom: none;
+    }
+
+    .chat-section {
+        height: 100vh;
+        width: 300px;
+    }
+=======
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+:root {
+    --primary-green: #00ff88;
+    --danger-red: #ff3333;
+    --dark-bg: #0a0f0a;
+    --panel-bg: rgba(20, 25, 20, 0.85);
+    --chat-bot-bg: #1a251d;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-main: #ffffff;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+body {
+    background-image: url('download.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    /* To Prevent body scroll on mobile */
+}
+
+/* Add a cool blur to the background image behind the app */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    z-index: -1;
+}
+
+/* Main Application Container */
+.app-container {
+    display: flex;
+    flex-direction: row;
+    width: 95%;
+    max-width: 1300px;
+    height: 90vh;
+    background: var(--panel-bg);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+/* 1. Scanner Section (Left/Top) */
+.scanner-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    border-right: 1px solid var(--border-color);
+}
+
+.section-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.section-header h2 {
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    color: #aaa;
+}
+
+/* The black viewfinder box */
+.viewfinder-container {
+    flex: 1;
+    background: #000;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    border: 2px solid #222;
+}
+
+/* Video and Image fit the container */
+video,
+#image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+}
+
+.viewfinder-placeholder {
+    text-align: center;
+    color: #444;
+    z-index: 1;
+}
+
+.viewfinder-placeholder .icon {
+    font-size: 4rem;
+    margin-bottom: 10px;
+}
+
+/* -----------------------------------------
+        Laser Scanning Style
+   ----------------------------------------- */
+.laser-scanner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    /* slightly thicker line */
+    background: var(--primary-green);
+
+    /* Strong glow effects */
+    box-shadow: 0 0 20px var(--primary-green),
+        0 0 10px #ffffff,
+        0 0 40px var(--primary-green);
+
+    /* Ensure it sits above image but below HUD */
+    z-index: 5;
+    opacity: 0;
+
+    /* Define animation link */
+    animation: scanAnimation 3.0s ease-in-out infinite;
+
+    /* Smooth transitions for appearing/disappearing */
+    transition: opacity 0.6s ease-in-out;
+}
+
+/* Visible state */
+.laser-scanner:not(.hidden) {
+    opacity: 1;
+}
+
+/* Keyframes for the up-and-down motion */
+@keyframes scanAnimation {
+    0% {
+        top: 0%;
+        opacity: 0.3;
+    }
+
+    50% {
+        top: 100%;
+        opacity: 1;
+        /* Brightest in middle */
+        transform: translateY(-100%);
+        /* stay inside bottom edge */
+    }
+
+    100% {
+        top: 0%;
+        opacity: 0.3;
+    }
+}
+
+/* -----------------------------------------
+   Augmented Reality HUD Badge
+   ----------------------------------------- */
+.hud-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    padding: 30px 25px 20px 25px;
+    text-align: left;
+    z-index: 10;
+    transition: all 0.5s ease-out;
+    transform: translateY(0);
+}
+
+.hud-badge.hidden {
+    display: none;
+    transform: translateY(100%);
+}
+
+#status-text {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary-green);
+    font-weight: bold;
+}
+
+#disease-name {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 5px 0;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.confidence-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+#confidence-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary-green);
+    min-width: 50px;
+}
+
+.confidence-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fill {
+    height: 100%;
+    background: var(--primary-green);
+    width: 0%;
+    transition: width 1s ease-out, background 0.5s;
+    box-shadow: 0 0 10px var(--primary-green);
+}
+
+/* Danger state (Diseased) */
+.hud-badge.danger #disease-name {
+    color: var(--danger-red);
+    text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+}
+
+.hud-badge.danger #status-text {
+    color: var(--danger-red);
+}
+
+.hud-badge.danger #confidence-text {
+    color: var(--danger-red);
+}
+
+.hud-badge.danger .fill {
+    background: var(--danger-red);
+    box-shadow: 0 0 10px var(--danger-red);
+}
+
+
+/* -----------------------------------------
+   Controls Area
+   ----------------------------------------- */
+.controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    background: #1a251d;
+    color: var(--primary-green);
+    transition: all 0.3s;
+    border: 1px solid var(--primary-green);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-btn:hover {
+    background: var(--primary-green);
+    color: #000;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+
+.capture-btndanger {
+    background: #2a1010;
+    color: var(--danger-red);
+    border-color: var(--danger-red);
+}
+
+.capture-btndanger:hover {
+    background: var(--danger-red);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
+}
+
+/* Helper class for JS */
+.hidden {
+    display: none !important;
+}
+
+/* =========================================
+   2. Chat Section (Right/Bottom)
+   ========================================= */
+.chat-section {
+    width: 420px;
+    display: flex;
+    flex-direction: column;
+    background: rgba(10, 15, 10, 0.98);
+}
+
+.chat-header {
+    padding: 20px;
+    background: var(--chat-bot-bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #555;
+}
+
+.status-dot.online {
+    background: var(--primary-green);
+    box-shadow: 0 0 10px var(--primary-green);
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    scroll-behavior: smooth;
+}
+
+/* Scrollbar styling */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 3px;
+}
+
+/* Message Bubbles */
+.message {
+    max-width: 85%;
+    padding: 14px 18px;
+    border-radius: 18px;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.message.bot {
+    background: var(--chat-bot-bg);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.message.user {
+    background: var(--primary-green);
+    color: #000;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+    font-weight: 600;
+}
+
+/* Input Area */
+.chat-input-area {
+    padding: 20px;
+    display: flex;
+    gap: 12px;
+    background: var(--chat-bot-bg);
+    border-top: 1px solid var(--border-color);
+}
+
+#chat-input {
+    flex: 1;
+    padding: 14px;
+    border-radius: 25px;
+    border: 1px solid #333;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    outline: none;
+    font-size: 1rem;
+    transition: border 0.3s;
+}
+
+#chat-input:focus {
+    border-color: var(--primary-green);
+}
+
+#send-chat-btn {
+    padding: 0 25px;
+    border-radius: 25px;
+    border: none;
+    background: var(--primary-green);
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+#send-chat-btn:hover {
+    box-shadow: 0 0 10px var(--primary-green);
+    transform: scale(1.05);
+}
+
+/* =========================================
+   Mobile Responsiveness
+   ========================================= */
+@media (max-width: 900px) {
+    body {
+        align-items: flex-start;
+        overflow: auto;
+    }
+
+    .app-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        width: 100%;
+        border-radius: 0;
+        border: none;
+        margin: 0;
+    }
+
+    .scanner-section {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 15px;
+        /* Viewfinder takes decent height on mobile */
+        height: 60vh;
+    }
+
+    .viewfinder-container {
+        margin-bottom: 10px;
+    }
+
+    #disease-name {
+        font-size: 1.8rem;
+    }
+
+    .controls {
+        gap: 10px;
+    }
+
+    .action-btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        flex: 1;
+        /* buttons split width */
+        justify-content: center;
+    }
+
+    .btn-text {
+        display: none;
+    }
+
+    /* Show only icons on very small screens if needed, otherwise rely on flex */
+
+    .chat-section {
+        width: 100%;
+        height: 40vh;
+        /* Bottom section */
+        background: rgba(5, 5, 5, 0.99);
+    }
+
+    .chat-messages {
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .message {
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+
+    .chat-input-area {
+        padding: 10px;
+    }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 900px) and (orientation: landscape) {
+    .app-container {
+        flex-direction: row;
+        height: 100vh;
+    }
+
+    .scanner-section {
+        height: 100vh;
+        border-right: 1px solid var(--border-color);
+        border-bottom: none;
+    }
+
+    .chat-section {
+        height: 100vh;
+        width: 300px;
+    }
+>>>>>>> d7f97669e11eaaf0b6d782eeb0b524b50cbc220c
+{
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+
+    .chat-input-area {
+        padding: 10px;
+    }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 900px) and (orientation: landscape) {
+    .app-container {
+        flex-direction: row;
+        height: 100vh;
+    }
+
+    .scanner-section {
+        height: 100vh;
+        border-right: 1px solid var(--border-color);
+        border-bottom: none;
+    }
+
+    .chat-section {
+        height: 100vh;
+        width: 300px;
+    }
+}
