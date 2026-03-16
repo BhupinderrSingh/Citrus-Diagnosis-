@@ -22,3 +22,5 @@ Citrus_Leaves_Split/
 .DS_Store
 # Ignore deep learning models to prevent GitHub 100MB limit errors
 *.h5
+
+serviceAccountKey.json

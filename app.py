@@ -1,16 +1,54 @@
 import os
 from dotenv import load_dotenv
 import numpy as np
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, session
+from flask_cors import CORS
 from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.inception_v3 import preprocess_input as inception_preprocess
 from tensorflow.keras.preprocessing import image
 from werkzeug.utils import secure_filename
 import google.generativeai as genai
+import firebase_admin
+from firebase_admin import credentials, auth as firebase_auth
+
+# Initialize Firebase Admin
+cred = credentials.Certificate("serviceAccountKey.json")
+firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
+CORS(app)
+app.secret_key = "some_very_secret_key" # Needed for sessions
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+@app.route('/verify')
+def verify_token():
+    token = request.args.get('token')
+    if not token:
+        return redirect("http://localhost:5173") # Back to React login
+
+    try:
+        # Verify the token with Firebase
+        decoded_token = firebase_auth.verify_id_token(token)
+        # Store user info in Flask session
+        session['user'] = decoded_token['uid']
+        return redirect('/') # Go to the actual home page
+    except:
+        return redirect("http://localhost:5173") # Token invalid
+
+@app.route('/')
+def home():
+    # SECURE GATEKEEPER: Check if user session exists
+    if 'user' not in session:
+        return redirect("http://localhost:5173") 
+    
+    return render_template('index.html')
+
+# Add a logout route to clear the session
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect("http://localhost:5173")
 
 # Load the variables from your .env file
 load_dotenv()
@@ -76,11 +114,6 @@ def predict_image_dual(img_path):
         return CLASSES[mn_class_idx], mn_conf, "MobileNetV2"
 
 # --- Routes ---
-
-@app.route('/')
-def home():
-    # This serves your beautiful HTML file!
-    return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
