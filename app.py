@@ -8,7 +8,7 @@ from flask_cors import CORS
 # --- FIXED AI IMPORTS ---
 import tensorflow as tf
 import keras
-from keras.models import load_model
+from tensorflow.keras.models import load_model as tf_load_model
 from keras.applications.inception_v3 import preprocess_input as inception_preprocess
 from keras.preprocessing import image  # Direct import to avoid the 'tensorflow.keras' error
 # -------------------------
@@ -104,10 +104,10 @@ current_diagnosis = "No leaf has been scanned yet."
 CLASSES = {0: 'Black spot', 1: 'Canker', 2: 'Greening', 3: 'Healthy', 4: 'Melanose'}
 
 print("Loading MobileNetV2...")
-mobilenet_model = load_model('citriscan_model.h5')
+mobilenet_model = tf_load_model('citriscan_model.h5')
 
 print("Loading InceptionV3...")
-inception_model = load_model('citriscan_inception_model.h5')
+inception_model = tf_load_model('citriscan_inception_model.h5')
 
 
 def predict_image_dual(img_path):
