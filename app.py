@@ -8,7 +8,7 @@ from flask_cors import CORS
 # --- FIXED AI IMPORTS ---
 import tensorflow as tf
 import keras
-from tensorflow.keras.models import load_model as tf_load_model
+from keras.models import load_model as tf_load_model
 from keras.applications.inception_v3 import preprocess_input as inception_preprocess
 from keras.preprocessing import image  # Direct import to avoid the 'tensorflow.keras' error
 # -------------------------
