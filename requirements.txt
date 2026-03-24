@@ -7,3 +7,4 @@ numpy
 Pillow
 gunicorn
 werkzeug
+firebase-admin
