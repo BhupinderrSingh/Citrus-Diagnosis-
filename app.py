@@ -4,11 +4,15 @@ from dotenv import load_dotenv
 import numpy as np
 from flask import Flask, request, jsonify, render_template, redirect, session
 from flask_cors import CORS
-from keras.models import load_model
+
+# --- FIXED AI IMPORTS ---
 import tensorflow as tf
-from tensorflow import keras
+import keras
+from keras.models import load_model
 from keras.applications.inception_v3 import preprocess_input as inception_preprocess
-from tensorflow.keras.preprocessing import image
+from keras.preprocessing import image  # Direct import to avoid the 'tensorflow.keras' error
+# -------------------------
+
 from werkzeug.utils import secure_filename
 import google.generativeai as genai
 import firebase_admin
