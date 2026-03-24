@@ -104,10 +104,10 @@ current_diagnosis = "No leaf has been scanned yet."
 CLASSES = {0: 'Black spot', 1: 'Canker', 2: 'Greening', 3: 'Healthy', 4: 'Melanose'}
 
 print("Loading MobileNetV2...")
-mobilenet_model = tf_load_model('citriscan_model.h5')
+mobilenet_model = tf_load_model('citriscan_model.h5', compile=False)
 
 print("Loading InceptionV3...")
-inception_model = tf_load_model('citriscan_inception_model.h5')
+inception_model = tf_load_model('citriscan_inception_model.h5', compile=False)
 
 
 def predict_image_dual(img_path):
