@@ -1,9 +1,9 @@
 Flask
 Flask-Cors
-tensorflow-cpu
+tensorflow-cpu==2.15.0
 google-generativeai
 python-dotenv
-numpy
+numpy==1.26.4
 Pillow
 gunicorn
 werkzeug
