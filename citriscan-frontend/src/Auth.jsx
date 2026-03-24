@@ -77,20 +77,33 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f0f4f1', // Light minty background
+    // 1. Remove the old solid green background
+    // backgroundColor: '#f0f4f1', 
+    
+    // 2. Add the background image (This is a beautiful high-res citrus orchard)
+    backgroundImage: 'url("/login-bg.jpg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    
     fontFamily: 'sans-serif',
     margin: 0,
     padding: '20px'
   },
   card: {
-    backgroundColor: 'white',
+    // 3. Make the card slightly transparent so the background subtly peeks through
+    backgroundColor: 'rgba(255, 255, 255, 0.92)', 
     padding: '40px',
-    borderRadius: '12px',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+    borderRadius: '16px',
+    // 4. Give it a stronger shadow to pop off the image
+    boxShadow: '0 12px 32px rgba(0,0,0,0.3)', 
     width: '100%',
     maxWidth: '400px',
     textAlign: 'center',
+    // Add a modern blur effect behind the card
+    backdropFilter: 'blur(10px)', 
   },
+  // ... leave all your other styles (title, subtitle, form, etc.) exactly the same
   title: { color: '#2e7d32', margin: '0 0 5px 0', fontSize: '28px' },
   subtitle: { color: '#666', marginBottom: '25px', fontSize: '15px' },
   form: { display: 'flex', flexDirection: 'column', gap: '15px' },

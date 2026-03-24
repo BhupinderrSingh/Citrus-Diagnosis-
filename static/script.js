@@ -194,7 +194,6 @@ function sendForPrediction(file) {
         addChatMessage('bot', "Connection error to analysis server. Please ensure Flask is running.");
     });
 }
-
 // =========================================
 // 4. Chat Logic
 // =========================================

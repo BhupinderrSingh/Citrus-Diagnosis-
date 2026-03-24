@@ -44,11 +44,10 @@ def home():
     
     return render_template('index.html')
 
-# Add a logout route to clear the session
 @app.route('/logout')
 def logout():
-    session.pop('user', None)
-    return redirect("http://localhost:5173")
+    session.pop('user_id', None)
+    return redirect("http://localhost:5173/?action=logout")
 
 # Load the variables from your .env file
 load_dotenv()
