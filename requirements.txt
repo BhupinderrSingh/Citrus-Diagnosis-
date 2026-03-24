@@ -8,3 +8,4 @@ Pillow
 gunicorn
 werkzeug
 firebase-admin
+gdown

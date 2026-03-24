@@ -1,4 +1,5 @@
 import os
+import gdown
 from dotenv import load_dotenv
 import numpy as np
 from flask import Flask, request, jsonify, render_template, redirect, session
@@ -10,6 +11,25 @@ from werkzeug.utils import secure_filename
 import google.generativeai as genai
 import firebase_admin
 from firebase_admin import credentials, auth as firebase_auth
+
+
+# --- Start of Google Drive Download Block ---
+mobilenet_filename = 'citriscan_model.h5' # Change this if your file is named differently
+mobilenet_id = '1u-t6P0alrQ4O0C-qyTj5nYBFRa1ebsPY'
+
+inception_filename = 'inception_model.h5' # Change this if your file is named differently
+inception_id = '1aW_tVF77TIHy-nFYn-NLblspwvZca_4I'
+
+# Download MobileNet if it isn't already on the server
+if not os.path.exists(mobilenet_filename):
+    print(f"Downloading {mobilenet_filename} from Google Drive...")
+    gdown.download(id=mobilenet_id, output=mobilenet_filename, quiet=False)
+
+# Download InceptionV3 if it isn't already on the server
+if not os.path.exists(inception_filename):
+    print(f"Downloading {inception_filename} from Google Drive...")
+    gdown.download(id=inception_id, output=inception_filename, quiet=False)
+# --- End of Google Drive Download Block ---
 
 # Initialize Firebase Admin
 cred = credentials.Certificate("serviceAccountKey.json")
