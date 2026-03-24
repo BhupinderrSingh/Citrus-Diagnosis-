@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import numpy as np
 from flask import Flask, request, jsonify, render_template, redirect, session
 from flask_cors import CORS
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 from tensorflow.keras.applications.inception_v3 import preprocess_input as inception_preprocess
 from tensorflow.keras.preprocessing import image
 from werkzeug.utils import secure_filename
