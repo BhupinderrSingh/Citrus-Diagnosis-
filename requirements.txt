@@ -1,0 +1,9 @@
+Flask
+Flask-Cors
+tensorflow-cpu
+google-generativeai
+python-dotenv
+numpy
+Pillow
+gunicorn
+werkzeug
