@@ -5,6 +5,8 @@ import numpy as np
 from flask import Flask, request, jsonify, render_template, redirect, session
 from flask_cors import CORS
 from keras.models import load_model
+import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras.applications.inception_v3 import preprocess_input as inception_preprocess
 from tensorflow.keras.preprocessing import image
 from werkzeug.utils import secure_filename
