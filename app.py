@@ -1,4 +1,5 @@
 import os
+import json
 import gdown
 from dotenv import load_dotenv
 import numpy as np
@@ -18,40 +19,71 @@ import google.generativeai as genai
 import firebase_admin
 from firebase_admin import credentials, auth as firebase_auth
 
+# Load environment variables before any startup configuration uses them.
+load_dotenv()
+
 
 # --- Start of Google Drive Download Block ---
-mobilenet_filename = 'citriscan_model.h5' # Change this if your file is named differently
-mobilenet_id = '1u-t6P0alrQ4O0C-qyTj5nYBFRa1ebsPY'
+MOBILENET_FILENAME = os.getenv('MOBILENET_MODEL_FILE', 'citriscan_model.h5')
+MOBILENET_ID = os.getenv('MOBILENET_MODEL_DRIVE_ID', '1u-t6P0alrQ4O0C-qyTj5nYBFRa1ebsPY')
 
-inception_filename = 'inception_model.h5' # Change this if your file is named differently
-inception_id = '1aW_tVF77TIHy-nFYn-NLblspwvZca_4I'
+INCEPTION_FILENAME = os.getenv('INCEPTION_MODEL_FILE', 'citriscan_inception_model.h5')
+INCEPTION_ID = os.getenv('INCEPTION_MODEL_DRIVE_ID', '1aW_tVF77TIHy-nFYn-NLblspwvZca_4I')
+INCEPTION_FALLBACK_FILENAME = 'inception_model.h5'
 
 # Download MobileNet if it isn't already on the server
-if not os.path.exists(mobilenet_filename):
-    print(f"Downloading {mobilenet_filename} from Google Drive...")
-    gdown.download(id=mobilenet_id, output=mobilenet_filename, quiet=False)
+if not os.path.exists(MOBILENET_FILENAME) and MOBILENET_ID:
+    print(f"Downloading {MOBILENET_FILENAME} from Google Drive...")
+    gdown.download(id=MOBILENET_ID, output=MOBILENET_FILENAME, quiet=False)
 
 # Download InceptionV3 if it isn't already on the server
-if not os.path.exists(inception_filename):
-    print(f"Downloading {inception_filename} from Google Drive...")
-    gdown.download(id=inception_id, output=inception_filename, quiet=False)
+if not os.path.exists(INCEPTION_FILENAME) and not os.path.exists(INCEPTION_FALLBACK_FILENAME) and INCEPTION_ID:
+    print(f"Downloading {INCEPTION_FILENAME} from Google Drive...")
+    gdown.download(id=INCEPTION_ID, output=INCEPTION_FILENAME, quiet=False)
 # --- End of Google Drive Download Block ---
 
-# Initialize Firebase Admin
-cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred)
+# Initialize Firebase Admin safely for cloud deployment
+firebase_enabled = False
+firebase_json = os.getenv('FIREBASE_SERVICE_ACCOUNT_JSON')
+firebase_credentials_path = os.getenv('FIREBASE_CREDENTIALS_PATH', 'serviceAccountKey.json')
+
+try:
+    if not firebase_admin._apps:
+        if firebase_json:
+            cred = credentials.Certificate(json.loads(firebase_json))
+            firebase_admin.initialize_app(cred)
+        elif os.path.exists(firebase_credentials_path):
+            cred = credentials.Certificate(firebase_credentials_path)
+            firebase_admin.initialize_app(cred)
+        else:
+            print('Firebase credentials not found. Auth verification is disabled.')
+    firebase_enabled = bool(firebase_admin._apps)
+except Exception as e:
+    print(f'Firebase initialization failed: {e}')
+    firebase_enabled = False
 
 app = Flask(__name__)
 CORS(app)
-app.secret_key = "some_very_secret_key" # Needed for sessions
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'change-me-in-production')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173').rstrip('/')
+
+
+def frontend_redirect(path=''):
+    if path:
+        return redirect(f"{FRONTEND_URL}/{path.lstrip('/')}")
+    return redirect(FRONTEND_URL)
+
 @app.route('/verify')
 def verify_token():
+    if not firebase_enabled:
+        return frontend_redirect()
+
     token = request.args.get('token')
     if not token:
-        return redirect("http://localhost:5173") # Back to React login
+        return frontend_redirect()
 
     try:
         # Verify the token with Firebase
@@ -59,31 +91,32 @@ def verify_token():
         # Store user info in Flask session
         session['user'] = decoded_token['uid']
         return redirect('/') # Go to the actual home page
-    except:
-        return redirect("http://localhost:5173") # Token invalid
+    except Exception:
+        return frontend_redirect()
 
 @app.route('/')
 def home():
     # SECURE GATEKEEPER: Check if user session exists
     if 'user' not in session:
-        return redirect("http://localhost:5173") 
+        return frontend_redirect()
     
     return render_template('index.html')
 
 @app.route('/logout')
 def logout():
+    session.pop('user', None)
     session.pop('user_id', None)
-    return redirect("http://localhost:5173/?action=logout")
-
-# Load the variables from your .env file
-load_dotenv()
+    return frontend_redirect('?action=logout')
 
 # 1. THE API KEY
 # Note: Ensure your .env file actually uses "API_KEY=..." and not "GEMINI_API_KEY=..." based on this!
-genai.configure(api_key=os.getenv("API_KEY")) # type: ignore
-
-# Set up the Generative AI Model
-chat_model = genai.GenerativeModel('gemini-2.5-flash')
+api_key = os.getenv('API_KEY')
+chat_model = None
+if api_key:
+    genai.configure(api_key=api_key)  # type: ignore
+    chat_model = genai.GenerativeModel('gemini-2.5-flash')
+else:
+    print('API_KEY is missing. Chat endpoint will return a configuration error.')
 
 # 2. THE SYSTEM PROMPT
 SYSTEM_PROMPT = """You are the CitriScan Assistant, an expert agronomist specializing in citrus plant health.
@@ -104,13 +137,25 @@ current_diagnosis = "No leaf has been scanned yet."
 CLASSES = {0: 'Black spot', 1: 'Canker', 2: 'Greening', 3: 'Healthy', 4: 'Melanose'}
 
 print("Loading MobileNetV2...")
-mobilenet_model = tf_load_model('citriscan_model.h5', compile=False)
+mobilenet_model = None
+try:
+    mobilenet_model = tf_load_model(MOBILENET_FILENAME, compile=False)
+except Exception as e:
+    print(f"MobileNet model load failed: {e}")
 
 print("Loading InceptionV3...")
-inception_model = tf_load_model('citriscan_inception_model.h5', compile=False)
+inception_model = None
+inception_path_to_load = INCEPTION_FILENAME if os.path.exists(INCEPTION_FILENAME) else INCEPTION_FALLBACK_FILENAME
+try:
+    inception_model = tf_load_model(inception_path_to_load, compile=False)
+except Exception as e:
+    print(f"Inception model load failed: {e}")
 
 
 def predict_image_dual(img_path):
+    if mobilenet_model is None or inception_model is None:
+        raise RuntimeError('Models are not loaded on this server instance.')
+
     # --- MobileNetV2 Pipeline (224x224 & Rescale 1./255) ---
     img_224 = image.load_img(img_path, target_size=(224, 224))
     img_array_224 = image.img_to_array(img_224)
@@ -143,6 +188,9 @@ def predict_image_dual(img_path):
 @app.route('/predict', methods=['POST'])
 def predict():
     global current_diagnosis # Access the global memory variable
+
+    if mobilenet_model is None or inception_model is None:
+        return jsonify({'error': 'Model files are missing or failed to load on server startup'}), 503
     
     if 'file' not in request.files:
         return jsonify({'error': 'No image uploaded'})
@@ -157,7 +205,12 @@ def predict():
         file.save(filepath)
         
         # Call the CORRECT dual-prediction function!
-        disease, confidence, winning_model = predict_image_dual(filepath)
+        try:
+            disease, confidence, winning_model = predict_image_dual(filepath)
+        except Exception as e:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            return jsonify({'error': f'Prediction failed: {e}'}), 500
         
         # UPDATE THE MEMORY FOR THE CHATBOT!
         current_diagnosis = f"{disease} (Confidence: {confidence*100:.1f}% using {winning_model})"
@@ -174,6 +227,9 @@ def predict():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.json.get('message', '')
+
+    if chat_model is None:
+        return jsonify({'response': 'Chat is not configured. Set API_KEY on the server environment.'}), 503
     
     # WE COMBINE EVERYTHING HERE: System Prompt + Image Context + User Message
     full_prompt = f"""
@@ -196,4 +252,5 @@ def chat():
     return jsonify({'response': bot_reply})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.getenv('PORT', '5000'))
+    app.run(host='0.0.0.0', port=port, debug=False)
