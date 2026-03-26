@@ -31,7 +31,7 @@ function App() {
       if (currentUser) {
         console.log("Active user detected. Redirecting to Flask...");
         const token = await currentUser.getIdToken();
-        window.location.href = `http://127.0.0.1:5000/verify?token=${token}`;
+        window.location.href = `https://citriscan.onrender.com/verify?token=${token}`;
       } else {
         console.log("No active user. Showing Auth screen.");
         setUser(null);

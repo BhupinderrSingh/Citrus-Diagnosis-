@@ -33,7 +33,7 @@ export default function Scanner({ onSignOut }) {
             formData.append('file', blob, 'react-capture.jpg');
 
             // 3. Send it to your existing Flask server
-            const response = await fetch('http://http://127.0.0.1:5000/', {
+            const response = await fetch('https://citriscan.onrender.com/', {
                 method: 'POST',
                 body: formData // No headers needed, the browser sets the multipart boundary automatically
             });
