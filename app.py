@@ -1,6 +1,5 @@
 import os
 import json
-import gdown
 from dotenv import load_dotenv
 import numpy as np
 from flask import Flask, request, jsonify, render_template, redirect, session
@@ -20,27 +19,45 @@ import firebase_admin
 from firebase_admin import credentials, auth as firebase_auth
 
 # Load environment variables before any startup configuration uses them.
+from config import config_by_name
+
+app = Flask(__name__)
+# Load 'development' by default if FLASK_ENV isn't set in the environment
+env_name = os.environ.get('FLASK_ENV', 'development')
+app.config.from_object(config_by_name[env_name])
+
 load_dotenv()
 
 
-# --- Start of Google Drive Download Block ---
-MOBILENET_FILENAME = os.getenv('MOBILENET_MODEL_FILE', 'citriscan_model.h5')
-MOBILENET_ID = os.getenv('MOBILENET_MODEL_DRIVE_ID', '1u-t6P0alrQ4O0C-qyTj5nYBFRa1ebsPY')
+# --- MODEL LOADING FROM LOCAL DIRECTORY ---
+# We use the MODEL_DIR defined in config.py instead of downloading at runtime
+MODEL_DIR = app.config.get('MODEL_DIR', 'models')
 
-INCEPTION_FILENAME = os.getenv('INCEPTION_MODEL_FILE', 'citriscan_inception_model.h5')
-INCEPTION_ID = os.getenv('INCEPTION_MODEL_DRIVE_ID', '1aW_tVF77TIHy-nFYn-NLblspwvZca_4I')
-INCEPTION_FALLBACK_FILENAME = 'inception_model.h5'
+MOBILENET_FILENAME = os.path.join(MODEL_DIR, 'citriscan_model.h5')
+INCEPTION_FILENAME = os.path.join(MODEL_DIR, 'citriscan_inception_model.h5')
+INCEPTION_FALLBACK_FILENAME = os.path.join(MODEL_DIR, 'inception_model.h5')
 
-# Download MobileNet if it isn't already on the server
-if not os.path.exists(MOBILENET_FILENAME) and MOBILENET_ID:
-    print(f"Downloading {MOBILENET_FILENAME} from Google Drive...")
-    gdown.download(id=MOBILENET_ID, output=MOBILENET_FILENAME, quiet=False)
+print("Loading MobileNetV2...")
+mobilenet_model = None
+try:
+    if os.path.exists(MOBILENET_FILENAME):
+        mobilenet_model = tf_load_model(MOBILENET_FILENAME, compile=False)
+    else:
+        print(f"ERROR: Could not find {MOBILENET_FILENAME}. Did you put it in the models/ folder?")
+except Exception as e:
+    print(f"MobileNet model load failed: {e}")
 
-# Download InceptionV3 if it isn't already on the server
-if not os.path.exists(INCEPTION_FILENAME) and not os.path.exists(INCEPTION_FALLBACK_FILENAME) and INCEPTION_ID:
-    print(f"Downloading {INCEPTION_FILENAME} from Google Drive...")
-    gdown.download(id=INCEPTION_ID, output=INCEPTION_FILENAME, quiet=False)
-# --- End of Google Drive Download Block ---
+print("Loading InceptionV3...")
+inception_model = None
+inception_path_to_load = INCEPTION_FILENAME if os.path.exists(INCEPTION_FILENAME) else INCEPTION_FALLBACK_FILENAME
+try:
+    if os.path.exists(inception_path_to_load):
+        inception_model = tf_load_model(inception_path_to_load, compile=False)
+    else:
+        print(f"ERROR: Could not find {inception_path_to_load}. Did you put it in the models/ folder?")
+except Exception as e:
+    print(f"Inception model load failed: {e}")
+# ------------------------------------------
 
 # Initialize Firebase Admin safely for cloud deployment
 firebase_enabled = False
@@ -62,14 +79,12 @@ except Exception as e:
     print(f'Firebase initialization failed: {e}')
     firebase_enabled = False
 
-app = Flask(__name__)
 CORS(app)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'change-me-in-production')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173').rstrip('/')
-
 
 def frontend_redirect(path=''):
     if path:
@@ -109,7 +124,6 @@ def logout():
     return frontend_redirect('?action=logout')
 
 # 1. THE API KEY
-# Note: Ensure your .env file actually uses "API_KEY=..." and not "GEMINI_API_KEY=..." based on this!
 api_key = os.getenv('API_KEY')
 chat_model = None
 if api_key:
@@ -127,30 +141,8 @@ Your rules:
 4. Keep your answers concise, professional, and easy for a farmer to read.
 """
 
-# 3. THE CONTEXT MEMORY
-# This variable remembers the last scanned leaf so the chatbot knows about it!
-current_diagnosis = "No leaf has been scanned yet."
-
-
-# 4. LOAD BOTH DEEP LEARNING MODELS
-
+# 3. CLASS DEFINITIONS & DUAL PREDICTION
 CLASSES = {0: 'Black spot', 1: 'Canker', 2: 'Greening', 3: 'Healthy', 4: 'Melanose'}
-
-print("Loading MobileNetV2...")
-mobilenet_model = None
-try:
-    mobilenet_model = tf_load_model(MOBILENET_FILENAME, compile=False)
-except Exception as e:
-    print(f"MobileNet model load failed: {e}")
-
-print("Loading InceptionV3...")
-inception_model = None
-inception_path_to_load = INCEPTION_FILENAME if os.path.exists(INCEPTION_FILENAME) else INCEPTION_FALLBACK_FILENAME
-try:
-    inception_model = tf_load_model(inception_path_to_load, compile=False)
-except Exception as e:
-    print(f"Inception model load failed: {e}")
-
 
 def predict_image_dual(img_path):
     if mobilenet_model is None or inception_model is None:
@@ -187,8 +179,7 @@ def predict_image_dual(img_path):
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    global current_diagnosis # Access the global memory variable
-
+    # FIX: Using session instead of global variable
     if mobilenet_model is None or inception_model is None:
         return jsonify({'error': 'Model files are missing or failed to load on server startup'}), 503
     
@@ -212,8 +203,8 @@ def predict():
                 os.remove(filepath)
             return jsonify({'error': f'Prediction failed: {e}'}), 500
         
-        # UPDATE THE MEMORY FOR THE CHATBOT!
-        current_diagnosis = f"{disease} (Confidence: {confidence*100:.1f}% using {winning_model})"
+        # FIX: UPDATE THE MEMORY FOR THE CHATBOT IN THE SECURE SESSION!
+        session['current_diagnosis'] = f"{disease} (Confidence: {confidence*100:.1f}% using {winning_model})"
         
         os.remove(filepath)
         
@@ -231,11 +222,14 @@ def chat():
     if chat_model is None:
         return jsonify({'response': 'Chat is not configured. Set API_KEY on the server environment.'}), 503
     
+    # FIX: RETRIEVE THE DIAGNOSIS FROM THE USER'S SESSION
+    user_diagnosis = session.get('current_diagnosis', "No leaf has been scanned yet.")
+    
     # WE COMBINE EVERYTHING HERE: System Prompt + Image Context + User Message
     full_prompt = f"""
     {SYSTEM_PROMPT}
     
-    Context: The user just uploaded a photo of a citrus leaf. Your dual-model AI system diagnosed it as: {current_diagnosis}. 
+    Context: The user just uploaded a photo of a citrus leaf. Your dual-model AI system diagnosed it as: {user_diagnosis}. 
     Use this context to inform your answer if the user asks about "my leaf" or "this disease".
     
     User says: {user_message}

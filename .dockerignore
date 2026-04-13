@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+
+# Python caching and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+
+# Local Virtual Environments (Docker creates its own)
+venv/
+.env_local/
+env/
+ENV/
+
+# Secrets and Credentials (CRITICAL: Never bake these into the image)
+.env
+firebase-admin-key.json
+firebase-*.json
+*.pem
+
+# Local databases and logs
+*.log
+*.sqlite3
+*.db
+
+# Temporary directories and local test data
+uploads/
+test_images/
+static/uploads/
+.pytest_cache/
+
+# Do NOT ignore the models/ directory - we explicitly want that in the image!

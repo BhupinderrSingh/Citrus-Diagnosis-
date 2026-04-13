@@ -1,12 +1,23 @@
-Flask
-Flask-Cors
-tensorflow-cpu==2.15.0
+# Web Framework & Server
+Flask==3.0.0
+Flask-Cors==4.0.0
+werkzeug==3.0.1
+gunicorn==21.2.0
+
+# Machine Learning & Image Processing
+tensorflow==2.15.1
 keras==2.15.0
-google-generativeai
-python-dotenv
 numpy==1.26.4
-Pillow
-gunicorn
-werkzeug
-firebase-admin
-gdown
+Pillow==10.1.0
+opencv-python-headless==4.9.0.80
+
+# Authentication & Cloud
+firebase-admin==6.4.0
+google-generativeai==0.3.0
+
+# Blockchain Integration (Digital Passport)
+web3==6.15.0
+
+# Caching & Environment
+redis==5.0.1
+python-dotenv==1.0.0

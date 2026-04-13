@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # The Flask AI Engine
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: citriscan-api
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - REDIS_HOST=redis
+      # Web3 and Firebase credentials should be loaded via a local .env file
+    env_file:
+      - .env
+    volumes:
+      # Mounts your local code into the container so you can see changes live
+      # without having to rebuild the Docker image every time you save a file.
+      - .:/app
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # The Caching & Message Broker Layer
+  redis:
+    image: redis:alpine
+    container_name: citriscan-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:
