@@ -5,8 +5,7 @@ werkzeug==3.0.1
 gunicorn==21.2.0
 
 # Machine Learning & Image Processing
-tensorflow==2.15.1
-keras==2.15.0
+tensorflow>=2.16.1
 numpy==1.26.4
 Pillow==10.1.0
 opencv-python-headless==4.9.0.80
