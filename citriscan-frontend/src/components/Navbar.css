@@ -1,0 +1,219 @@
+/* ==========================================
+   Navbar — Sticky, glassmorphism on scroll
+   ========================================== */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 16px 0;
+  transition: all var(--transition-base);
+}
+
+.navbar--scrolled {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 20px rgba(0,0,0,0.06);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(45,122,58,0.08);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+/* Logo */
+.navbar__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  z-index: 10;
+}
+
+.navbar__logo-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.navbar__logo-text {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--citrus-green-dark);
+  letter-spacing: -0.5px;
+}
+
+/* Links */
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar__link {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--gray-600);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.navbar__link:hover {
+  color: var(--citrus-green);
+  background: var(--citrus-green-50);
+}
+
+/* CTA Buttons */
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.navbar__btn--ghost {
+  color: var(--citrus-green);
+  background: transparent;
+  border: 1.5px solid var(--citrus-green-200);
+}
+
+.navbar__btn--ghost:hover {
+  background: var(--citrus-green-50);
+  border-color: var(--citrus-green);
+}
+
+.navbar__btn--primary {
+  color: var(--white);
+  background: linear-gradient(135deg, var(--citrus-green), var(--citrus-green-dark));
+  border: none;
+  box-shadow: 0 4px 14px rgba(45,122,58,0.3);
+}
+
+.navbar__btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(45,122,58,0.4);
+}
+
+.navbar__btn--full {
+  width: 100%;
+}
+
+/* Hamburger */
+.navbar__hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+  background: none;
+  border: none;
+  z-index: 10;
+}
+
+.navbar__hamburger span {
+  display: block;
+  width: 24px;
+  height: 2.5px;
+  background: var(--gray-700);
+  border-radius: 2px;
+  transition: all var(--transition-base);
+  transform-origin: center;
+}
+
+.navbar__hamburger--open span:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+.navbar__hamburger--open span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.navbar__hamburger--open span:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* Mobile Menu */
+.navbar__mobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.98);
+  backdrop-filter: blur(30px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.98);
+  transition: all var(--transition-base);
+  z-index: 5;
+}
+
+.navbar__mobile--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.navbar__mobile-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar__mobile-link {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--gray-800);
+  padding: 12px 32px;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+}
+
+.navbar__mobile-link:hover {
+  color: var(--citrus-green);
+  background: var(--citrus-green-50);
+}
+
+.navbar__mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 240px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .navbar__links,
+  .navbar__actions {
+    display: none;
+  }
+  .navbar__hamburger {
+    display: flex;
+  }
+}

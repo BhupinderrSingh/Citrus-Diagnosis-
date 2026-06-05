@@ -1,23 +1,39 @@
-# Web Framework & Server
+# === Web Framework ===
 Flask==3.0.0
 Flask-Cors==4.0.0
 werkzeug==3.0.1
 gunicorn==21.2.0
 
-# Machine Learning & Image Processing
-tensorflow==2.15.1
-keras==2.15.0
+# === TensorFlow / Keras 3 ===
+tensorflow==2.16.2
+
+# === ML & Image ===
 numpy==1.26.4
 Pillow==10.1.0
 opencv-python-headless==4.9.0.80
+h5py==3.11.0
 
-# Authentication & Cloud
+# === Firebase + Google (protobuf 4.x ecosystem) ===
 firebase-admin==6.4.0
-google-generativeai==0.3.0
+google-api-core==2.19.2
+google-api-python-client==2.134.0
+googleapis-common-protos==1.63.2
+grpcio==1.62.3
+grpcio-status==1.62.3
+protobuf==4.25.3
+proto-plus==1.23.0
 
-# Blockchain Integration (Digital Passport)
+# === Gemini AI ===
+google-generativeai==0.3.0
+google-ai-generativelanguage==0.4.0
+
+# === Web3 ===
 web3==6.15.0
 
-# Caching & Environment
+# === Utils ===
 redis==5.0.1
 python-dotenv==1.0.0
+requests==2.31.0
+
+# === Security ===
+flask-talisman==1.1.0

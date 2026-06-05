@@ -1,26 +1,69 @@
-# Security / Secrets (CRITICAL)
-.env
-kaggle.json
+# ==========================================
+# CitriScan — .gitignore
+# ==========================================
 
-# Python Virtual Environments
+# ---- SECRETS & CREDENTIALS (CRITICAL) ----
+.env
+.env.local
+.env.*.local
+*.local
+serviceAccountKey.json
+firebase-admin-key.json
+firebase-*.json
+kaggle.json
+*.pem
+*.key
+
+# ---- Python ----
 venv/
 env/
 .venv/
-
-# Python Cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+*.so
+.pytest_cache/
 
-# User Uploads (from testing the Flask app)
-uploads/
+# ---- Node.js ----
+node_modules/
+dist/
+dist-ssr/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
 
-# Huge Datasets (Users can download these using your download_data.py)
+# ---- Deep Learning Models (too large for GitHub) ----
+*.h5
+*.hdf5
+*.pb
+*.tflite
+models/*.h5
+
+# ---- Datasets (users download via download_data.py) ----
 Citrus_Leaves_Raw/
 Citrus_Leaves_Split/
 
-# OS generated files
-.DS_Store
-# Ignore deep learning models to prevent GitHub 100MB limit errors
-*.h5
+# ---- User Uploads (from Flask app testing) ----
+uploads/
 
-serviceAccountKey.json
+# ---- OS Generated ----
+.DS_Store
+Thumbs.db
+
+# ---- IDE / Editor ----
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ---- Local databases & logs ----
+*.sqlite3
+*.db

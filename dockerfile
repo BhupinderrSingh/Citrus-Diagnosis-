@@ -2,7 +2,7 @@
 # Stage 1: Builder
 # Compiles and installs all heavy dependencies
 # ==========================================
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ WORKDIR /app
 
 # Install ONLY the system dependencies required at runtime (OpenCV needs these)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -46,6 +46,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Copy the pre-downloaded AI models FIRST
 # (If code changes but models don't, Docker caches this massive layer)
 COPY models/ ./models/
+RUN chmod -R 755 /app/models
+# Ensure the app can actually read the model files
+RUN chmod -R 644 /app/models/*.h5
+RUN chmod 755 /app/models
 
 # Copy the rest of the Flask application code
 COPY . .
@@ -54,4 +58,5 @@ COPY . .
 EXPOSE 5000
 
 # Start the server with Gunicorn (optimized for production ML workloads)
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "app:app"]
+# FIX 2 & 3: --workers=1 prevents OOM (each TF load = 133MB), --timeout=120 allows 2min for model loading
+CMD ["gunicorn", "--workers=1", "--timeout=120", "--bind=0.0.0.0:5000", "app:app"]
